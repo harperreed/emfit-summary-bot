@@ -2,6 +2,8 @@
 
 A simple sms bot that is meant to be triggerred by cron to send you a summary of your previous nights sleep. 
 
+It can be called from cron and once it sends the morning message it will not send it again until tomorrow. i hope. 
+
 Example text:
 
     Good Morning, Harper! 😃
@@ -15,6 +17,8 @@ Example text:
   
 
 Should work great!
+
+
 
 ## config.yml
 
@@ -39,5 +43,8 @@ Here is an example config.yml. It should be pretty self explanatory.
 
 
 ## Cron config
+here is my cron
 
-`1/15 6,7,8,9,10,11 * * *`
+`*/15 6,7,8,9,10,11 * * *  /usr/local/bin/node /home/harper/scripts/emfit-summary-bot/index.js /home/harper/scripts/emfit-summary-bot/cron.log 2>&1`
+
+Theoretically it should run every 15 minutes from 6am-11am.
