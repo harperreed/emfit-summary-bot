@@ -1,0 +1,15 @@
+{
+  "name": "emfit-bot",
+  "version": "1.0.0",
+  "description": "A bot that checks if you have been out of bed for 30 minutes and then sends you an message with your last sleep data",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "harper@nata2.org",
+  "license": "ISC",
+  "dependencies": {
+    "config-yml": "^0.8.0",
+    "emfit-qs": "^0.4.0",
+  }
+}
