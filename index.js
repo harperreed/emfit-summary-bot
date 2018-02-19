@@ -53,7 +53,6 @@ updateState = function(deviceId){
   var stateFile = config.emfit.stateFile
   
   jsonfile.readFile(stateFile, function(err, obj) {
-    console.log(obj)
     if (obj == undefined){
       obj = {deviceId:moment().format("L")}
     }else{
@@ -73,8 +72,6 @@ getState = function(deviceId){
   var state = ""
 
   obj = jsonfile.readFileSync(stateFile) 
-
-  console.log(obj)
   if (obj == undefined){
     console.log("File isn't initialized")
     state= true
