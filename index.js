@@ -2,11 +2,10 @@ const QS = require('emfit-qs');
 
 const moment = require('moment');
 const jsonfile = require('jsonfile')
-var yaml_config = require('node-yaml-config');
-var config = yaml_config.load(__dirname + '/config.yml');
+const yaml_config = require('node-yaml-config');
+const config = yaml_config.load(__dirname + '/config.yml');
+
 var qs = new QS()
-console.log(__dirname + '/config.yml')
-console.log(config)
 
 const client = require('twilio')(config.twilio.accountSid, config.twilio.authToken);
 
@@ -40,13 +39,16 @@ sleepMessage = function(sleepObj){
     sleep_judgement = "😴"
   }
 
+
+
   message = message + sleep_judgement + "\n\n"
   message = message +'You slept about ' + sleep_length + ' hours \n('
   message = message + sleepObj.sleep_class_light_percent + "% light, " + sleepObj.sleep_class_rem_percent + "% REM and "+ sleepObj.sleep_class_deep_percent + "% deep). \n\n"
 
   message = message + "💤 It took you about " + Math.round(sleepObj.sleep_onset_duration/60) + " minutes to fall asleep and "
   message = message + "you got up about " + sleepObj.bed_exit_count + " times. \n\n"
-  message = message + "🛌🏽 You went to bed around " + start + " and got out of bed around " + end +"."
+  message = message + "🛌🏽 You went to bed around " + start + " and got out of bed around " + end +".\n\n"
+  message = message + "📈 Last night your sleep score was "+ sleepObj.sleep_score + " out of a 100."
 
   return message
 }
