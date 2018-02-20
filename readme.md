@@ -24,20 +24,21 @@ Should work great!
 
 Here is an example config.yml. It should be pretty self explanatory. 
 
-    emfit:
-      username: email@address
-      password: XXX
-      devices:
-        4613:
-          name: NAME
-          deviceId: 5555
-          number: 12223335555
-      stateFile: /tmp/statefile.json
+    default:
+      emfit:
+        username: email@address
+        password: XXX
+        devices:
+          4613:
+            name: NAME
+            deviceId: 5555
+            number: 12223335555
+        stateFile: /tmp/statefile.json
 
-    twilio:
-      accountSid: XX
-      authToken: XX
-      fromNumber: 12223335555
+      twilio:
+        accountSid: XX
+        authToken: XX
+        fromNumber: 12223335555
 
 
 
