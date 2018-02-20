@@ -1,10 +1,12 @@
 const QS = require('emfit-qs');
-const config = require('config-yml');
+
 const moment = require('moment');
 const jsonfile = require('jsonfile')
-
+var yaml_config = require('node-yaml-config');
+var config = yaml_config.load(__dirname + '/config.yml');
 var qs = new QS()
-
+console.log(__dirname + '/config.yml')
+console.log(config)
 
 const client = require('twilio')(config.twilio.accountSid, config.twilio.authToken);
 
