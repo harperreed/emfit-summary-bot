@@ -14,7 +14,7 @@
     "jsonfile": "^4.0.0",
     "moment": "^2.20.1",
     "node-yaml-config": "0.0.4",
-    "twilio": "^3.11.3",
+    "twilio": "^3.11.3"
 
   }
 }
