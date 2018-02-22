@@ -116,7 +116,7 @@ qs.login(config.emfit.username, config.emfit.password).then(function(data) {
               console.log(moment(sleep.time_end* 1000))
               console.log(moment(sleep.time_end* 1000).add(1, 'hour'))
               if(moment(sleep.time_end* 1000).add(1, 'hour').isBefore(moment())){
-                console.log("Generating message for " + sleep.name)
+                console.log("Generating message for " + device.name)
                 sleep.name = device.name
                 let message = sleepMessage(sleep)
                 console.log("Sending message to " + device.number)
