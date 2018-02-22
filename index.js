@@ -123,7 +123,7 @@ qs.login(config.emfit.username, config.emfit.password).then(function(data) {
                 sendSMS(device.number,message)
                 updateState(deviceId)
               }else{
-                console.log("not time yet time to send message to " + sleep.name)
+                console.log("not time yet time to send message to " + device.name)
               }
             }
 
