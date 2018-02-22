@@ -5,6 +5,9 @@ const moment = require('moment');
 const jsonfile = require('jsonfile')
 const yaml_config = require('node-yaml-config');
 const config = yaml_config.load(__dirname + '/config.yml');
+const log4js = require('log4js');
+const logger = log4js.getLogger();
+logger.level = 'debug';
 
 var qs = new QS()
 
@@ -18,7 +21,7 @@ sendSMS = function(number, message){
     from: config.twilio.fromNumber,
     body: message,
   })
-  .then(message => console.log(message.sid));
+  .then(message => logger.debug(message.sid));
 }
 
 sleepMessage = function(sleepObj){
@@ -59,12 +62,17 @@ updateState = function(deviceId){
   
   jsonfile.readFile(stateFile, function(err, obj) {
     if (obj == undefined){
-      obj = {deviceId:moment().format("L")}
+      obj = {}
+      obj[deviceId] = moment().format("L")
     }else{
       obj[deviceId] = moment().format("L")  
     }
     jsonfile.writeFile(stateFile, obj, function (err) {
-      console.error(err)
+      if (err){
+        logger.error(err)  
+      }else{
+        logger.debug("Updated statefile: " + stateFile)
+      }
     })
     return false
   })
@@ -74,26 +82,35 @@ updateState = function(deviceId){
 getState = function(deviceId){
   var stateFile = config.emfit.stateFile
   var state = ""
-  if (fs.existsSync(stateFile)) {
-    obj = jsonfile.readFileSync(stateFile) 
-    if (obj == undefined){
-      console.log("File isn't initialized")
-      state= true
-    }
-  }else{
-    return true
+ 
+  obj = jsonfile.readFileSync(stateFile) 
+  if (obj == undefined){
+    logger.debug("File isn't initialized")
+    state= true
   }
   todayDate = moment().format("L");
-    
+  
   if (todayDate == obj[deviceId]){
-    console.log("Already sent message")
+    logger.debug("Already sent message")
     state= false
   }else{
-    console.log("message isn't sent yet")
+    logger.debug("message isn't sent yet")
     state=  true
   }
   return state
 }
+
+
+if (!fs.existsSync(config.emfit.stateFile)) {
+  jsonfile.writeFile(config.emfit.stateFile, {}, function (err) {
+    if (err){
+      logger.error(err)  
+    }else{
+      logger.debug("initialized statefile: " + config.emfit.stateFile)
+    }
+  })
+}
+
 
 
 qs.login(config.emfit.username, config.emfit.password).then(function(data) {
@@ -105,25 +122,20 @@ qs.login(config.emfit.username, config.emfit.password).then(function(data) {
         qs.latest(deviceId).then(function (sleep) {
           // dump all data
 
-          jsonfile.writeFile("/tmp/"+deviceId+".json", sleep, function (err) {
-            console.error(err)
-          })
           device = config.emfit.devices[sleep.device_id]
           if (device != undefined){
             sleepEndDate = moment(sleep.time_end* 1000).format("YYYY MM DD");
             todayDate = moment().format("YYYY MM DD");
             if (sleepEndDate==todayDate){
-              console.log(moment(sleep.time_end* 1000))
-              console.log(moment(sleep.time_end* 1000).add(1, 'hour'))
               if(moment(sleep.time_end* 1000).add(1, 'hour').isBefore(moment())){
-                console.log("Generating message for " + device.name)
+                logger.debug("Generating message for " + device.name)
                 sleep.name = device.name
                 let message = sleepMessage(sleep)
-                console.log("Sending message to " + device.number)
-                sendSMS(device.number,message)
+                logger.debug("Sending message to " + device.number)
+                //sendSMS(device.number,message)
                 updateState(deviceId)
               }else{
-                console.log("not time yet time to send message to " + device.name)
+                logger.debug("not time yet time to send message to " + device.name)
               }
             }
 
@@ -132,7 +144,7 @@ qs.login(config.emfit.username, config.emfit.password).then(function(data) {
       }
     })
   }).catch(function(error){
-    console.error(error)
+    logger.error(error)
   })
 })
 
