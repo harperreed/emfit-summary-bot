@@ -1,5 +1,6 @@
 const QS = require('emfit-qs');
 
+const fs = require('fs');
 const moment = require('moment');
 const jsonfile = require('jsonfile')
 const yaml_config = require('node-yaml-config');
@@ -65,7 +66,6 @@ updateState = function(deviceId){
     jsonfile.writeFile(stateFile, obj, function (err) {
       console.error(err)
     })
-    
     return false
   })
   
@@ -74,11 +74,14 @@ updateState = function(deviceId){
 getState = function(deviceId){
   var stateFile = config.emfit.stateFile
   var state = ""
-
-  obj = jsonfile.readFileSync(stateFile) 
-  if (obj == undefined){
-    console.log("File isn't initialized")
-    state= true
+  if (fs.existsSync(stateFile)) {
+    obj = jsonfile.readFileSync(stateFile) 
+    if (obj == undefined){
+      console.log("File isn't initialized")
+      state= true
+    }
+  }else{
+    return true
   }
   todayDate = moment().format("L");
     
@@ -101,18 +104,29 @@ qs.login(config.emfit.username, config.emfit.password).then(function(data) {
         // get latest data for first device found
         qs.latest(deviceId).then(function (sleep) {
           // dump all data
+
+          jsonfile.writeFile("/tmp/"+deviceId+".json", sleep, function (err) {
+            console.error(err)
+          })
           device = config.emfit.devices[sleep.device_id]
           if (device != undefined){
             sleepEndDate = moment(sleep.time_end* 1000).format("YYYY MM DD");
             todayDate = moment().format("YYYY MM DD");
             if (sleepEndDate==todayDate){
-              console.log("Generating message for " + sleep.name)
-              sleep.name = device.name
-              let message = sleepMessage(sleep)
-              console.log("Sending message to " + device.number)
-              sendSMS(device.number,message)
-              updateState(deviceId)
+              console.log(moment(sleep.time_end* 1000))
+              console.log(moment(sleep.time_end* 1000).add(1, 'hour'))
+              if(moment(sleep.time_end* 1000).add(1, 'hour').isBefore(moment())){
+                console.log("Generating message for " + sleep.name)
+                sleep.name = device.name
+                let message = sleepMessage(sleep)
+                console.log("Sending message to " + device.number)
+                sendSMS(device.number,message)
+                updateState(deviceId)
+              }else{
+                console.log("not time yet time to send message to " + sleep.name)
+              }
             }
+
           }
         })
       }
