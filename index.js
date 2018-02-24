@@ -132,7 +132,7 @@ qs.login(config.emfit.username, config.emfit.password).then(function(data) {
                 sleep.name = device.name
                 let message = sleepMessage(sleep)
                 logger.debug("Sending message to " + device.number)
-                //sendSMS(device.number,message)
+                sendSMS(device.number,message)
                 updateState(deviceId)
               }else{
                 logger.debug("not time yet time to send message to " + device.name)
