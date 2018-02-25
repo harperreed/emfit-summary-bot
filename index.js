@@ -120,12 +120,6 @@ qs.login(config.emfit.username, config.emfit.password).then(function(data) {
       if (getState(deviceId)){
         // get latest data for first device found
         qs.latest(deviceId).then(function (sleep) {
-          // dump all data
-          jsonfile.writeFile("sleep"+deviceId+".json", sleep, function (err) {
-          if (err){
-        logger.error(err)  
-      }
-    })
           
           device = config.emfit.devices[sleep.device_id]
           if (device != undefined){
