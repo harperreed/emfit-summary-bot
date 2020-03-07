@@ -9,10 +9,11 @@ const log4js = require('log4js');
 const logger = log4js.getLogger();
 logger.level = 'debug';
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
 var qs = new QS()
 
 const client = require('twilio')(config.twilio.accountSid, config.twilio.authToken);
-
 
 sendSMS = function(number, message){
   client.messages
@@ -84,12 +85,14 @@ getState = function(deviceId){
   var state = ""
  
   obj = jsonfile.readFileSync(stateFile) 
+
+  
   if (obj == undefined){
     logger.debug("File isn't initialized")
     state= true
   }
   todayDate = moment().format("L");
-  
+
   if (todayDate == obj[deviceId]){
     logger.debug("Already sent message")
     state= false
@@ -97,6 +100,7 @@ getState = function(deviceId){
     logger.debug("message isn't sent yet")
     state=  true
   }
+  logger.debug(state)
   return state
 }
 
@@ -114,28 +118,26 @@ if (!fs.existsSync(config.emfit.stateFile)) {
 
 
 qs.login(config.emfit.username, config.emfit.password).then(function(data) {
+  
   qs.user().then(function(data) {
     data.device_settings.forEach(function(deviceSettings) {
+
       let deviceId = deviceSettings.device_id
       if (getState(deviceId)){
         // get latest data for first device found
         qs.latest(deviceId).then(function (sleep) {
-          
+
           device = config.emfit.devices[sleep.device_id]
           if (device != undefined){
             sleepEndDate = moment(sleep.time_end* 1000).format("YYYY MM DD");
             todayDate = moment().format("YYYY MM DD");
             if (sleepEndDate==todayDate){
-              if(moment(sleep.time_end* 1000).add(1, 'hour').isBefore(moment())){
                 logger.debug("Generating message for " + device.name)
                 sleep.name = device.name
                 let message = sleepMessage(sleep)
                 logger.debug("Sending message to " + device.number)
-                sendSMS(device.number,message)
+		            sendSMS(device.number,message)
                 updateState(deviceId)
-              }else{
-                logger.debug("not time yet time to send message to " + device.name)
-              }
             }
 
           }
