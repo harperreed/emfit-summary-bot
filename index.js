@@ -1,6 +1,7 @@
 const QS = require('emfit-qs');
 
 const fs = require('fs');
+const sparkline = require('sparkline');
 const moment = require('moment');
 const jsonfile = require('jsonfile')
 const yaml_config = require('node-yaml-config');
@@ -48,12 +49,16 @@ sleepMessage = function(sleepObj){
 
   message = message + sleep_judgement + "\n\n"
   message = message +'You slept about ' + sleep_length + ' hours \n('
-  message = message + sleepObj.sleep_class_light_percent + "% light, " + sleepObj.sleep_class_rem_percent + "% REM and "+ sleepObj.sleep_class_deep_percent + "% deep). \n\n"
+  message = message + sleepObj.sleep_class_light_percent + "% light, " + sleepObj.sleep_class_rem_percent + "% REM and "+ sleepObj.sleep_class_deep_percent + "% deep). \n"
+
 
   message = message + "💤 It took you about " + Math.round(sleepObj.sleep_onset_duration/60) + " minutes to fall asleep and "
   message = message + "you got up about " + sleepObj.bed_exit_count + " times. \n\n"
   message = message + "🛌🏽 You went to bed around " + start + " and got out of bed around " + end +".\n\n"
-  message = message + "📈 Last night your sleep score was "+ sleepObj.sleep_score + " out of a 100."
+  message = message + "📈 Your HRV: " + sleepObj.hrv_rmssd_morning + " / " + sleepObj.hrv_rmssd_evening + " (Morning / Evening)\n\n"
+
+  message = message + "📈 Last night your sleep score was "+ sleepObj.sleep_score + " out of a 100.\n\n"
+
 
   return message
 }
