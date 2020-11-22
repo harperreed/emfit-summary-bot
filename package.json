@@ -10,11 +10,20 @@
   "license": "ISC",
   "dependencies": {
     "emfit-qs": "git+https://github.com/harperreed/emfit-qs.git",
+<<<<<<< HEAD
     "jsonfile": "^6.1.0",
     "log4js": "^6.3.0",
     "moment": "^2.29.1",
     "node-fetch": "^2.6.1",
     "node-yaml-config": "0.0.6",
     "twilio": "^3.52.0"
+=======
+    "jsonfile": "^4.0.0",
+    "log4js": "^2.5.3",
+    "moment": "^2.20.1",
+    "node-yaml-config": "0.0.5",
+    "sparkline": "^0.2.0",
+    "twilio": "^3.40.0"
+>>>>>>> fa9a6bf886571702a7098acdc4d66e5c0d950dbd
   }
 }
