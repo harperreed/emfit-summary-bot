@@ -9,11 +9,12 @@
   "author": "harper@nata2.org",
   "license": "ISC",
   "dependencies": {
-    "emfit-qs": "^0.4.0",
-    "jsonfile": "^4.0.0",
-    "log4js": "^2.5.3",
-    "moment": "^2.20.1",
-    "node-yaml-config": "0.0.4",
-    "twilio": "^3.11.3"
+    "emfit-qs": "git+https://github.com/harperreed/emfit-qs.git",
+    "jsonfile": "^6.1.0",
+    "log4js": "^6.3.0",
+    "moment": "^2.29.1",
+    "node-fetch": "^2.6.1",
+    "node-yaml-config": "0.0.6",
+    "twilio": "^3.52.0"
   }
 }

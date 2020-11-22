@@ -7,24 +7,36 @@ const yaml_config = require('node-yaml-config');
 const config = yaml_config.load(__dirname + '/config.yml');
 const log4js = require('log4js');
 const logger = log4js.getLogger();
+const fetch = require('node-fetch');
+
 logger.level = 'debug';
+
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 var qs = new QS()
 
-const client = require('twilio')(config.twilio.accountSid, config.twilio.authToken);
+sendChatMessage = function (sleepCards) {
 
+  const webhookURL = "https://chat.googleapis.com/v1/spaces/AAAAEGECUf8/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=tLamMvAjMDQ5GAk_ID_jF75oIUnwyH8jM1hcs1vTUsc%3D";
 
-sendSMS = function(number, message){
-  client.messages
-  .create({
-    to: number,
-    from: config.twilio.fromNumber,
-    body: message,
+  // console.log(sleepCards)
+  sleepCards.forEach(function(card){
+    const data = JSON.stringify(card);
+    fetch(webhookURL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: data,
+    }).then((response) => {
+      response.text()
+      .then(body => console.log(body));
+    });
   })
-  .then(message => logger.debug(message.sid));
 }
 
-sleepMessage = function(sleepObj){
+sleepCards = function(sleepObj, userid, thread){
+  const cards = []
 
   let end = new Date(sleepObj.time_end * 1000)
   end = moment(end).format("h:mm A");
@@ -39,22 +51,95 @@ sleepMessage = function(sleepObj){
     sleep_judgement = "😃"
   }else if (sleep_length >7){
     sleep_judgement = "😀"
-  }else if (sleep_length <6){
+  }else if (sleep_length <=6){
     sleep_judgement = "😴"
   }
 
+  const greeting = {
+    text: `${sleep_judgement} Good Morning, <${userid}> ${sleep_judgement}`, 
+    thread: {
+      name: thread
+    }
+  }
+
+  const sleepMessage = `<${userid}> You slept about <b>${sleep_length} hours</b> \n(${sleepObj.sleep_class_light_percent}% light, ${sleepObj.sleep_class_rem_percent}% REM and ${sleepObj.sleep_class_deep_percent}% deep)`;
 
 
-  message = message + sleep_judgement + "\n\n"
-  message = message +'You slept about ' + sleep_length + ' hours \n('
-  message = message + sleepObj.sleep_class_light_percent + "% light, " + sleepObj.sleep_class_rem_percent + "% REM and "+ sleepObj.sleep_class_deep_percent + "% deep). \n\n"
+  fallingAsleepMessage = `It took you about <b>${Math.round(sleepObj.sleep_onset_duration/60)} minutes</b> to fall asleep and you got up about ${sleepObj.bed_exit_count} times.`
+  
+  bedtimeMessage =  `You went to bed around <b>${start}</b> and got out of bed around ${end}`
+  HRVMessage =  `Your HRV: ${sleepObj.hrv_rmssd_morning} / ${sleepObj.hrv_rmssd_evening} (Morning / Evening)`
 
-  message = message + "💤 It took you about " + Math.round(sleepObj.sleep_onset_duration/60) + " minutes to fall asleep and "
-  message = message + "you got up about " + sleepObj.bed_exit_count + " times. \n\n"
-  message = message + "🛌🏽 You went to bed around " + start + " and got out of bed around " + end +".\n\n"
-  message = message + "📈 Last night your sleep score was "+ sleepObj.sleep_score + " out of a 100."
+  sleepScoreMessage =  `Last night your sleep score was <b>${sleepObj.sleep_score} out of a 100.</b>`
 
-  return message
+  const card = {
+    text: `${sleep_judgement} Good Morning, <${userid}> ${sleep_judgement}`, 
+    "cards": [
+      {
+        "sections": [
+          {
+            "widgets": [
+              {
+                "textParagraph": {
+                  "text": sleepMessage
+                }
+              },
+            ]
+          },
+          {
+            "header": "💤 Falling Asleep",
+            "widgets": [
+              {
+                "textParagraph": {
+                  "text": fallingAsleepMessage
+                }
+              },
+            ]
+          },
+          {
+            "header": "🛌🏽 Bedtime",
+            "widgets": [          
+              {
+                "textParagraph": {
+                  "text": bedtimeMessage
+                }
+              },
+            ]
+          },
+          {
+            "header": "📈 HRV",
+            "widgets": [          
+              {
+                "textParagraph": {
+                  "text": HRVMessage
+                }
+              },
+            ]
+          },
+          {
+            "header": "📈 Sleep Score",
+            "widgets": [          
+              {
+                "textParagraph": {
+                  "text": sleepScoreMessage
+                }
+              },
+            ]
+          },
+
+
+        ]
+      }
+    ],
+    // thread: {
+    //   name: thread
+    // }
+  }
+  // cards.push(greeting);
+  cards.push(card);
+  
+
+  return cards
 }
 
 updateState = function(deviceId){
@@ -84,12 +169,14 @@ getState = function(deviceId){
   var state = ""
  
   obj = jsonfile.readFileSync(stateFile) 
+
+  
   if (obj == undefined){
     logger.debug("File isn't initialized")
     state= true
   }
   todayDate = moment().format("L");
-  
+
   if (todayDate == obj[deviceId]){
     logger.debug("Already sent message")
     state= false
@@ -97,6 +184,7 @@ getState = function(deviceId){
     logger.debug("message isn't sent yet")
     state=  true
   }
+  logger.debug(state)
   return state
 }
 
@@ -114,28 +202,26 @@ if (!fs.existsSync(config.emfit.stateFile)) {
 
 
 qs.login(config.emfit.username, config.emfit.password).then(function(data) {
+  
   qs.user().then(function(data) {
     data.device_settings.forEach(function(deviceSettings) {
+
       let deviceId = deviceSettings.device_id
       if (getState(deviceId)){
         // get latest data for first device found
         qs.latest(deviceId).then(function (sleep) {
-          
+
           device = config.emfit.devices[sleep.device_id]
           if (device != undefined){
             sleepEndDate = moment(sleep.time_end* 1000).format("YYYY MM DD");
             todayDate = moment().format("YYYY MM DD");
             if (sleepEndDate==todayDate){
-              if(moment(sleep.time_end* 1000).add(1, 'hour').isBefore(moment())){
                 logger.debug("Generating message for " + device.name)
                 sleep.name = device.name
-                let message = sleepMessage(sleep)
+                let cards = sleepCards( sleep, device.gchat_userid, device.gchat_thread)
                 logger.debug("Sending message to " + device.number)
-                sendSMS(device.number,message)
                 updateState(deviceId)
-              }else{
-                logger.debug("not time yet time to send message to " + device.name)
-              }
+                sendChatMessage(cards);
             }
 
           }
