@@ -1,7 +1,6 @@
 const QS = require('emfit-qs');
 
 const fs = require('fs');
-const sparkline = require('sparkline');
 const moment = require('moment');
 const jsonfile = require('jsonfile')
 const yaml_config = require('node-yaml-config');
