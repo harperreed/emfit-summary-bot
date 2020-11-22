@@ -65,10 +65,10 @@ sleepCards = function(sleepObj, userid, thread){
   const sleepMessage = `<${userid}> You slept about <b>${sleep_length} hours</b> \n(${sleepObj.sleep_class_light_percent}% light, ${sleepObj.sleep_class_rem_percent}% REM and ${sleepObj.sleep_class_deep_percent}% deep)`;
 
 
-  fallingAsleepMessage = `It took you about <b>${Math.round(sleepObj.sleep_onset_duration/60)} minutes</b> to fall asleep and you got up about ${sleepObj.bed_exit_count} times.`
+  fallingAsleepMessage = `It took you about <b>${Math.round(sleepObj.sleep_onset_duration/60)} minutes</b> to fall asleep and you got up about <b>${sleepObj.bed_exit_count}</b> times.`
   
-  bedtimeMessage =  `You went to bed around <b>${start}</b> and got out of bed around ${end}`
-  HRVMessage =  `Your HRV: ${sleepObj.hrv_rmssd_morning} / ${sleepObj.hrv_rmssd_evening} (Morning / Evening)`
+  bedtimeMessage =  `You went to bed around <b>${start}</b> and got out of bed around <b>${end}</b>`
+  HRVMessage =  `${sleepObj.hrv_rmssd_morning} / ${sleepObj.hrv_rmssd_evening} (Morning / Evening)`
 
   sleepScoreMessage =  `Last night your sleep score was <b>${sleepObj.sleep_score} out of a 100.</b>`
 
@@ -117,7 +117,7 @@ sleepCards = function(sleepObj, userid, thread){
             ]
           },
           {
-            "header": "📈 Sleep Score",
+            "header": `📈 Sleep Score ${sleep_judgement}`,
             "widgets": [          
               {
                 "textParagraph": {
