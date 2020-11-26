@@ -17,7 +17,7 @@ var qs = new QS()
 
 sendChatMessage = function (sleepCards) {
 
-  const webhookURL = "https://chat.googleapis.com/v1/spaces/AAAAEGECUf8/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=tLamMvAjMDQ5GAk_ID_jF75oIUnwyH8jM1hcs1vTUsc%3D";
+  const webhookURL = "";
 
   // console.log(sleepCards)
   sleepCards.forEach(function(card){
