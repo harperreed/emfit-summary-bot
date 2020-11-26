@@ -15,131 +15,52 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 var qs = new QS()
 
-sendChatMessage = function (sleepCards) {
+sendChatMessage = function (message) {
 
-  const webhookURL = "";
+  const webhookURL = `https://chat.googleapis.com/v1/spaces/${config.chat.space}/messages?key=${config.chat.key}&token=${config.chat.token}`
+  const payload = {'text':message}
 
-  // console.log(sleepCards)
-  sleepCards.forEach(function(card){
-    const data = JSON.stringify(card);
-    fetch(webhookURL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: data,
-    }).then((response) => {
-      response.text()
-      .then(body => console.log(body));
-    });
-  })
+  const data = JSON.stringify(payload);
+  fetch(webhookURL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: data,
+  }).then((response) => {
+    response.text()
+    .then(body => console.log(body));
+  });
+
 }
 
-sleepCards = function(sleepObj, userid, thread){
-  const cards = []
+sleepMessage = function(sleepObj, userid){
 
   let end = new Date(sleepObj.time_end * 1000)
   end = moment(end).format("h:mm A");
   let start = new Date(sleepObj.time_start * 1000)
   start = moment(start).format("h:mm A");
-
-  var message = "Good Morning, "+ sleepObj.name+"! "
+  
   var sleep_length = Math.round(sleepObj.sleep_duration /60/60)
   var sleep_judgement = ""
 
-  if (sleep_length >8){
+  if (sleep_length >=8){
     sleep_judgement = "😃"
-  }else if (sleep_length >7){
+  }else if (sleep_length >=7){
     sleep_judgement = "😀"
   }else if (sleep_length <=6){
     sleep_judgement = "😴"
   }
 
-  const greeting = {
-    text: `${sleep_judgement} Good Morning, <${userid}> ${sleep_judgement}`, 
-    thread: {
-      name: thread
-    }
-  }
+  var message = `Good Morning, <${userid}> ${sleep_judgement}\n\n`
 
-  const sleepMessage = `<${userid}> You slept about <b>${sleep_length} hours</b> \n(${sleepObj.sleep_class_light_percent}% light, ${sleepObj.sleep_class_rem_percent}% REM and ${sleepObj.sleep_class_deep_percent}% deep)`;
+  message = message +`You slept about *${sleep_length}* hours (*${sleepObj.sleep_class_light_percent}%* light, *${sleepObj.sleep_class_rem_percent}%* REM and *${sleepObj.sleep_class_deep_percent}%* deep). \n\n`
+  message = message + `💤 It took you about *${Math.round(sleepObj.sleep_onset_duration/60)}* minutes to fall asleep and you got up about *${sleepObj.bed_exit_count}* times. \n\n`
+  message = message + `🛌🏽 You went to bed around *${start}* and got out of bed around *${end}* \n\n`
+  message = message + `📈 Your HRV: *${sleepObj.hrv_rmssd_morning}* / *${sleepObj.hrv_rmssd_evening}* (Morning / Evening)\n\n`
+  message = message + `📈 Last night your sleep score was *${sleepObj.sleep_score}* out of a 100.\n\n`
 
-
-  fallingAsleepMessage = `It took you about <b>${Math.round(sleepObj.sleep_onset_duration/60)} minutes</b> to fall asleep and you got up about <b>${sleepObj.bed_exit_count}</b> times.`
-  
-  bedtimeMessage =  `You went to bed around <b>${start}</b> and got out of bed around <b>${end}</b>`
-  HRVMessage =  `${sleepObj.hrv_rmssd_morning} / ${sleepObj.hrv_rmssd_evening} (Morning / Evening)`
-
-  sleepScoreMessage =  `Last night your sleep score was <b>${sleepObj.sleep_score} out of a 100.</b>`
-
-  const card = {
-    text: `${sleep_judgement} Good Morning, <${userid}> ${sleep_judgement}`, 
-    "cards": [
-      {
-        "sections": [
-          {
-            "widgets": [
-              {
-                "textParagraph": {
-                  "text": sleepMessage
-                }
-              },
-            ]
-          },
-          {
-            "header": "💤 Falling Asleep",
-            "widgets": [
-              {
-                "textParagraph": {
-                  "text": fallingAsleepMessage
-                }
-              },
-            ]
-          },
-          {
-            "header": "🛌🏽 Bedtime",
-            "widgets": [          
-              {
-                "textParagraph": {
-                  "text": bedtimeMessage
-                }
-              },
-            ]
-          },
-          {
-            "header": "📈 HRV",
-            "widgets": [          
-              {
-                "textParagraph": {
-                  "text": HRVMessage
-                }
-              },
-            ]
-          },
-          {
-            "header": `📈 Sleep Score ${sleep_judgement}`,
-            "widgets": [          
-              {
-                "textParagraph": {
-                  "text": sleepScoreMessage
-                }
-              },
-            ]
-          },
-
-
-        ]
-      }
-    ],
-    thread: {
-      name: thread
-    }
-  }
-
-  cards.push(card);
-  
-
-  return cards
+  return message
 }
 
 updateState = function(deviceId){
@@ -161,7 +82,6 @@ updateState = function(deviceId){
     })
     return false
   })
-  
 }
 
 getState = function(deviceId){
@@ -210,7 +130,6 @@ qs.login(config.emfit.username, config.emfit.password).then(function(data) {
       if (getState(deviceId)){
         // get latest data for first device found
         qs.latest(deviceId).then(function (sleep) {
-
           device = config.emfit.devices[sleep.device_id]
           if (device != undefined){
             sleepEndDate = moment(sleep.time_end* 1000).format("YYYY MM DD");
@@ -218,7 +137,7 @@ qs.login(config.emfit.username, config.emfit.password).then(function(data) {
             if (sleepEndDate==todayDate){
                 logger.debug("Generating message for " + device.name)
                 sleep.name = device.name
-                let cards = sleepCards( sleep, device.gchat_userid, device.gchat_thread)
+                let cards = sleepMessage( sleep, device.gchat_userid)
                 logger.debug("Sending message to " + device.number)
                 updateState(deviceId)
                 sendChatMessage(cards);

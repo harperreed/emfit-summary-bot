@@ -8,7 +8,10 @@ default:
         deviceId: 5555
         number: 12223335555
     stateFile: /tmp/statefile.json
-
+  chat:
+    space: XX
+    key: XX
+    token: XX
   twilio:
     accountSid: XX
     authToken: XX
