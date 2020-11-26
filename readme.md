@@ -4,6 +4,9 @@ A simple sms bot that is meant to be triggerred by cron to send you a summary of
 
 It can be called from cron and once it sends the morning message it will not send it again until tomorrow. i hope. 
 
+## I am now using chat webhooks. it is prety solid and kind of annoying. 
+
+
 Example text:
 
     Good Morning, Harper! 😃
@@ -35,10 +38,10 @@ Here is an example config.yml. It should be pretty self explanatory.
             number: 12223335555
         stateFile: /tmp/statefile.json
 
-      twilio:
-        accountSid: XX
-        authToken: XX
-        fromNumber: 12223335555
+      chat:
+        space: XX
+        key: XX
+        token: XX
 
 
 
