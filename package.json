@@ -9,6 +9,7 @@
   "author": "harper@nata2.org",
   "license": "ISC",
   "dependencies": {
+    "discord-webhook-node": "^1.1.8",
     "emfit-qs": "git+https://github.com/harperreed/emfit-qs.git",
     "jsonfile": "^6.1.0",
     "log4js": "^6.3.0",
