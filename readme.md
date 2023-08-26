@@ -1,28 +1,95 @@
 # Emfit Morning Summary Bot
 
-A simple sms bot that is meant to be triggerred by cron to send you a summary of your previous nights sleep. 
+## Overview
 
-It can be called from cron and once it sends the morning message it will not send it again until tomorrow. i hope. 
+This Sleep Bot project aims to handle multiple responsibilities, including initializing state files, logging into a service, fetching user and device data, and sending messages via Pushover. The project is built using Node.js and relies on a `config.yaml` file for various settings.
 
-## I am now using chat webhooks. it is prety solid and kind of annoying. 
+## Table of Contents
+1. [Installation](#installation)
+2. [Configuration](#configuration)
+3. [Usage](#usage)
+4. [Functions](#functions)
+5. [Contributing](#contributing)
+6. [License](#license)
 
+## Installation
 
-Example text:
+Clone the repository and navigate to the project folder. Run the following command to install the required Node.js packages:
 
-    Good Morning, Harper! 😃
-  
-    You slept about 9 hours 
-    (54% light, 28% REM and 18% deep). 
+```bash
+npm install
+```
 
-    💤 It took you about 30 minutes to fall asleep and you got up about 3 times. 
+## Configuration
 
-    🛌🏽 You went to bed around 9:52 PM and got out of bed around 9:11 AM.
-  
+Create a `config.yaml` file in the root directory with the following structure:
 
-Should work great!
+```yaml
+default:
+  emfit:
+    username: email@address
+    password: XXX
+    devices:
+      4613:
+        name: NAME
+        enabled: true
+        deviceId: 5555
+        number: 12223335555
+        discord_at: "xxxx"
+        pushover_userkey: xxxx
+        pushover_priority: -1
+    stateFile: /tmp/statefile.json
+  chat:
+    space: XX
+    key: XX
+    token: XX
+  twilio:
+    accountSid: XX
+    authToken: XX
+    fromNumber: 12223335555
+  openai: 
+    apikey: "sk-xxxx"
+    model: "gpt-4"
+  pushover: 
+    apikey: xxxx
+    userkey: xxxx
+```
 
+Replace the placeholder values (`XXX`, `XX`, `xxxx`, etc.) with your actual credentials and settings.
 
+## Usage
 
+To start the bot, simply run:
+
+```bash
+node index.js
+```
+
+## Functions
+
+### `instantiateSleepBot()`
+
+An asynchronous function that initializes state files, logs into the Emfit service, fetches user data, and processes each device setting.
+
+### `processDevice(deviceSettings)`
+
+A helper function to process individual device settings. It fetches the latest sleep data for each device and sends messages if conditions are met.
+
+### `sendChatMessage(subject, message, pushoverUser, priority)`
+
+An asynchronous function that sends a Pushover message.
+
+## Contributing
+
+If you'd like to contribute, please fork the repository and make changes as you'd like. Pull requests are warmly welcome.
+
+## License
+
+MIT
+
+---
+
+Feel free to modify this README to better suit your project's needs.
 ## config.yml
 
 Here is an example config.yml. It should be pretty self explanatory. 

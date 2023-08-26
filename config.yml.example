@@ -5,8 +5,12 @@ default:
     devices:
       4613:
         name: NAME
+        enabled: true
         deviceId: 5555
         number: 12223335555
+        discord_at: "xxxx"
+        pushover_userkey: xxxx
+        pushover_priority: -1
     stateFile: /tmp/statefile.json
   chat:
     space: XX
@@ -16,5 +20,11 @@ default:
     accountSid: XX
     authToken: XX
     fromNumber: 12223335555
-
+  openai: 
+    apikey: "sk-xxxx"
+    model: "gpt-4"
+  pushover: 
+    apikey: xxxx
+    userkey: xxxx
+    
 
