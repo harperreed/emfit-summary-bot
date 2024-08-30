@@ -19,6 +19,8 @@ var push = new Pushover({
 
 const configuration = {
   apiKey: config.openai.apikey,
+  baseURL:  "https://openaiproxy-baxvbakvia-uc.a.run.app/v1",
+
 };
 const openai = new OpenAI(configuration);
 
@@ -351,12 +353,14 @@ const getState = function (deviceId) {
  * @throws Will throw an error if initializing the state file or login fails.
  */
 async function instantiateSleepBot() {
-  try {
-    await fs.writeFile(config.emfit.stateFile, JSON.stringify({}));
-    logger.debug(`Initialized statefile: ${config.emfit.stateFile}`);
-  } catch (error) {
-    logger.error("Error initializing state file", error);
-  }
+
+  // try {
+  //  await fs.writeFile(config.emfit.stateFile, JSON.stringify({}));
+  //  logger.debug(`Initialized statefile: ${config.emfit.stateFile}`);
+  //} catch (error) {
+  //  logger.error("Error initializing state file", error);
+  //}
+
 
   try {
     const loginData = await qs.login(config.emfit.username, config.emfit.password);
